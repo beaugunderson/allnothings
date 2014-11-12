@@ -3,21 +3,44 @@
 var botUtilities = require('bot-utilities');
 var fs = require('fs');
 var program = require('commander');
+var sprintf = require('sprintf');
 var Twit = require('twit');
 var _ = require('lodash');
 
 _.mixin(botUtilities.lodashMixins);
 
 var adjectives = JSON.parse(fs.readFileSync('./data/adjectives.json')).adjs;
+var nouns = require('./wordnet-js/Noun.js').data;
 var verbs = JSON.parse(fs.readFileSync('./data/verbs.json')).verbs;
 
-// We only want past tense
-verbs = _.pluck(verbs, 'past');
+var states = _(nouns)
+  .filter({lexname: 'noun.state'})
+  .pluck('words')
+  .map(_.first)
+  .value();
 
-function quote() {
-  return 'Everything was ' + _.sample(adjectives) + ', and nothing ' +
-    _.sample(verbs) + '.';
-}
+// We only want past tense
+var pastVerbs = _.pluck(verbs, 'past');
+
+var quoteFns = [
+  function () {
+    return sprintf('Everything was %s, and nothing %s.',
+                   _.sample(adjectives),
+                   _.sample(pastVerbs));
+  },
+  function () {
+    var first = _.sample(adjectives);
+
+    return sprintf('The best jokes are %s, and %s because they are in some way %s.',
+                  first,
+                  first,
+                  _.sample(adjectives));
+  },
+  function () {
+    return sprintf('It is hard to adapt to %s, but it can be done.',
+                   _.sample(states));
+  }
+];
 
 program
   .command('tweet')
@@ -34,7 +57,9 @@ program
 
     var T = new Twit(botUtilities.getTwitterAuthFromEnv());
 
-    T.post('statuses/update', {status: quote()},
+    var quote = _.sample(quoteFns)();
+
+    T.post('statuses/update', {status: quote},
         function (err, data, response) {
       if (err || response.statusCode !== 200) {
         console.log('Error sending tweet', err, response.statusCode);
@@ -43,6 +68,15 @@ program
       }
 
       console.log('Done.');
+    });
+  });
+
+program
+  .command('candidates')
+  .description('Generate tweet candidates')
+  .action(function () {
+    _.times(100, function () {
+      console.log(_.sample(quoteFns)());
     });
   });
 
