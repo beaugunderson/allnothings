@@ -17,10 +17,10 @@
   },
   "homepage": "https://github.com/beaugunderson/node-twitter-allnothings",
   "dependencies": {
-    "bot-utilities": "^1.0.1",
-    "commander": "^2.5.0",
-    "lodash": "^2.4.1",
-    "sprintf": "^0.1.4",
-    "twit": "^1.1.18"
+    "bot-utilities": "^2.3.0",
+    "commander": "^2.8.1",
+    "lodash": "^3.10.1",
+    "sprintf": "^0.1.5",
+    "twit": "^2.1.0"
   }
 }
