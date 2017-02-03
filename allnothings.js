@@ -1,6 +1,7 @@
 'use strict';
 
 var botUtilities = require('bot-utilities');
+var isCool = require('iscool')();
 var fs = require('fs');
 var program = require('commander');
 var sprintf = require('sprintf');
@@ -22,23 +23,33 @@ var states = _(nouns)
 // We only want past tense
 var pastVerbs = _.pluck(verbs, 'past');
 
+function coolSample(array) {
+  var result;
+
+  do {
+    result = _.sample(array);
+  } while (!isCool(result));
+
+  return result;
+}
+
 var quoteFns = [
   function () {
     return sprintf('Everything was %s, and nothing %s.',
-                   _.sample(adjectives),
-                   _.sample(pastVerbs));
+                   coolSample(adjectives),
+                   coolSample(pastVerbs));
   },
   function () {
-    var first = _.sample(adjectives);
+    var first = coolSample(adjectives);
 
     return sprintf('The best jokes are %s, and %s because they are in some way %s.',
                   first,
                   first,
-                  _.sample(adjectives));
+                  coolSample(adjectives));
   },
   function () {
     return sprintf('It is hard to adapt to %s, but it can be done.',
-                   _.sample(states));
+                   coolSample(states));
   }
 ];
 
@@ -60,15 +71,15 @@ program
     var quote = _.sample(quoteFns)();
 
     T.post('statuses/update', {status: quote},
-        function (err, data, response) {
-      if (err || response.statusCode !== 200) {
-        console.log('Error sending tweet', err, response.statusCode);
+      function (err, data, response) {
+        if (err || response.statusCode !== 200) {
+          console.log('Error sending tweet', err, response.statusCode);
 
-        return;
-      }
+          return;
+        }
 
-      console.log('Done.');
-    });
+        console.log('Done.');
+      });
   });
 
 program
