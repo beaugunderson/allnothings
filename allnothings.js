@@ -16,12 +16,12 @@ var verbs = JSON.parse(fs.readFileSync('./data/verbs.json')).verbs;
 
 var states = _(nouns)
   .filter({lexname: 'noun.state'})
-  .pluck('words')
+  .map('words')
   .map(_.first)
   .value();
 
 // We only want past tense
-var pastVerbs = _.pluck(verbs, 'past');
+var pastVerbs = _.map(verbs, 'past');
 
 function coolSample(array) {
   var result;
@@ -36,20 +36,20 @@ function coolSample(array) {
 var quoteFns = [
   function () {
     return sprintf('Everything was %s, and nothing %s.',
-                   coolSample(adjectives),
-                   coolSample(pastVerbs));
+      coolSample(adjectives),
+      coolSample(pastVerbs));
   },
   function () {
     var first = coolSample(adjectives);
 
     return sprintf('The best jokes are %s, and %s because they are in some way %s.',
-                  first,
-                  first,
-                  coolSample(adjectives));
+      first,
+      first,
+      coolSample(adjectives));
   },
   function () {
     return sprintf('It is hard to adapt to %s, but it can be done.',
-                   coolSample(states));
+      coolSample(states));
   }
 ];
 
